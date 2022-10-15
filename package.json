@@ -3,9 +3,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "export": "next export"
   },
   "dependencies": {
+    "aws-sdk": "^2.1233.0",
     "next": "latest",
     "react": "17.0.2",
     "react-calendar": "^3.9.0",

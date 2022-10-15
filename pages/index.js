@@ -4,6 +4,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
 import Loading from "../components/loading";
+import { saveReservation } from "../support/reservation-service";
 
 const places = [
   {
@@ -24,7 +25,7 @@ export default function Home() {
   const [selectedPlace, setSelectedPlace] = useState({});
   const [checkIn, setCheckIn] = useState(new Date());
   const [checkOut, setCheckOut] = useState(new Date());
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const nameInputRef = useRef(null);
 
   const placeClickHandler = (id) => {
@@ -36,19 +37,27 @@ export default function Home() {
     setSelectedPlace(newState);
   };
 
-  const reserveClickHandler = () => {
-    setLoading(true)
+  const reserveClickHandler = async () => {
+    setLoading(true);
+
+    checkIn.setUTCHours(22, 0, 0, 0)
+    checkOut.setUTCHours(18, 0, 0, 0)
+
     const payload = {
-      place: selectedPlace,
-      checkIn,
-      checkOut,
+      places: selectedPlace,
+      checkIn: checkIn,
+      checkOut: checkOut,
       name: nameInputRef.current.value,
     };
 
     console.log(payload);
-    setTimeout(() => {
-      setLoading(false)
-    }, 3000)
+    try {
+      await saveReservation(payload);
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -103,7 +112,11 @@ export default function Home() {
           <div className="btn" onClick={reserveClickHandler}>
             <div className="flex">
               Reserve
-              {loading ? <div className="loading-wrapper"><Loading /></div> : null }
+              {loading ? (
+                <div className="loading-wrapper">
+                  <Loading />
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
