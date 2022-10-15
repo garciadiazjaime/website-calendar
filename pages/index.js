@@ -1,49 +1,55 @@
-import { useState, useRef } from 'react';
-import Head from 'next/head'
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
+import { useState, useRef } from "react";
+import Head from "next/head";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+
+import Loading from "../components/loading";
 
 const places = [
   {
     id: 1,
-    title: 'Cabain #1'
+    title: "Cabain #1",
   },
   {
     id: 2,
-    title: 'Cabain #2'
+    title: "Cabain #2",
   },
   {
     id: 3,
-    title: 'Cabain #3'
+    title: "Cabain #3",
   },
-]
+];
 
 export default function Home() {
-  const [selectedPlace, setSelectedPlace] = useState({})
+  const [selectedPlace, setSelectedPlace] = useState({});
   const [checkIn, setCheckIn] = useState(new Date());
   const [checkOut, setCheckOut] = useState(new Date());
+  const [loading, setLoading] = useState(false)
   const nameInputRef = useRef(null);
-
 
   const placeClickHandler = (id) => {
     const newState = {
-      ...selectedPlace
-    }
-    newState[id] = newState[id] === undefined ? true : !newState[id]
+      ...selectedPlace,
+    };
+    newState[id] = newState[id] === undefined ? true : !newState[id];
 
-    setSelectedPlace(newState)
-  }
+    setSelectedPlace(newState);
+  };
 
   const reserveClickHandler = () => {
+    setLoading(true)
     const payload = {
       place: selectedPlace,
       checkIn,
       checkOut,
       name: nameInputRef.current.value,
-    }
+    };
 
-    console.log(payload)
-  }
+    console.log(payload);
+    setTimeout(() => {
+      setLoading(false)
+    }, 3000)
+  };
 
   return (
     <div className="container">
@@ -52,58 +58,83 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <header>
-
-      </header>
+      <header>Reservas</header>
       <main>
-        <div className='place-selection'>
-          {
-            places.map(place => (
-              <div onClick={() => placeClickHandler(place.id)} className={selectedPlace[place.id] ? 'place-selected' : ''}>
-                {place.title}
-              </div>  
-            ))
-          }
+        <div className="place-selection">
+          {places.map((place) => (
+            <div
+              key={place.id}
+              onClick={() => placeClickHandler(place.id)}
+              className={selectedPlace[place.id] ? "place-selected" : ""}
+            >
+              {place.title}
+            </div>
+          ))}
         </div>
 
-        <div className='dates-selection'>
+        <div className="dates-selection">
           <div>
             Check-in: <br />
-            <Calendar className="calendar" onChange={setCheckIn} value={checkIn} />
+            <Calendar
+              className="calendar"
+              onChange={setCheckIn}
+              value={checkIn}
+            />
           </div>
           <br />
           <div>
             Check-out: <br />
-            <Calendar className="calendar" onChange={setCheckOut} value={checkOut} />
+            <Calendar
+              className="calendar"
+              onChange={setCheckOut}
+              value={checkOut}
+            />
           </div>
         </div>
 
-        <div className='contact-reservation'>
+        <div className="contact-reservation">
           <div>
             Name <br />
             <input type="text" ref={nameInputRef} />
           </div>
         </div>
 
-
-        <div className='control'>
-          <div className='btn' onClick={reserveClickHandler}>Reserve</div>
+        <div className="control">
+          <div className="btn" onClick={reserveClickHandler}>
+            <div className="flex">
+              Reserve
+              {loading ? <div className="loading-wrapper"><Loading /></div> : null }
+            </div>
+          </div>
         </div>
-        
       </main>
 
-      <footer>
-
-      </footer>
+      <footer>Lúptico</footer>
 
       <style jsx>{`
-        header, footer {
+        header,
+        footer {
           height: 120px;
           border: 1px solid;
+          text-align: center;
+          font-size: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .container {
           min-height: 100vh;
           padding: 0 0.5rem;
+        }
+
+        .loading-wrapper {
+          margin-left: 16px;
+        }
+
+        .flex {
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
 
         .place-selection {
@@ -170,5 +201,5 @@ export default function Home() {
         }
       `}</style>
     </div>
-  )
+  );
 }
