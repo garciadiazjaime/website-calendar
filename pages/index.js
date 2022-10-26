@@ -22,9 +22,10 @@ const places = [
 ];
 
 export default function Home() {
+  const [message, setMessage] = useState("");
   const [selectedPlace, setSelectedPlace] = useState({});
-  const [checkIn, setCheckIn] = useState(new Date());
-  const [checkOut, setCheckOut] = useState(new Date());
+  const [checkIn, setCheckIn] = useState(null);
+  const [checkOut, setCheckOut] = useState(null);
   const [loading, setLoading] = useState(false);
   const nameInputRef = useRef(null);
 
@@ -37,11 +38,61 @@ export default function Home() {
     setSelectedPlace(newState);
   };
 
+  const isReservationValid = () => {
+    const isCabinValid = Object.keys(selectedPlace).reduce((accu, id) => {
+      if (selectedPlace[id]) {
+        accu = true;
+      }
+
+      return accu;
+    }, false);
+
+    if (!isCabinValid) {
+      setMessage("Select a cabin");
+      return false;
+    }
+
+    if (!checkIn) {
+      setMessage("Check-in is empty");
+      return false;
+    }
+
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    if (checkIn < yesterday) {
+      setMessage("Check-in can't be before today");
+      return false;
+    }
+
+
+    if (!checkOut) {
+      setMessage("Check-out is empty");
+      return false;
+    }
+
+    if (checkIn >= checkOut) {
+      setMessage("Check-in needs to be before Check-out");
+      return false;
+    }
+
+    if (!nameInputRef.current.value) {
+      setMessage("Name is empty");
+      return false;
+    }
+
+    return true;
+  };
+
   const reserveClickHandler = async () => {
+    if (!isReservationValid()) {
+      return;
+    }
+
+    setMessage("");
     setLoading(true);
 
-    checkIn.setUTCHours(22, 0, 0, 0)
-    checkOut.setUTCHours(18, 0, 0, 0)
+    checkIn.setUTCHours(22, 0, 0, 0);
+    checkOut.setUTCHours(18, 0, 0, 0);
 
     const payload = {
       places: selectedPlace,
@@ -50,11 +101,9 @@ export default function Home() {
       name: nameInputRef.current.value,
     };
 
-    console.log(payload);
-    try {
-      await saveReservation(payload);
-    } catch (error) {
-      console.log(error);
+    const response = await saveReservation(payload);
+    if (response.status !== 200) {
+      setMessage("Error, try again");
     }
 
     setLoading(false);
@@ -107,6 +156,8 @@ export default function Home() {
             <input type="text" ref={nameInputRef} />
           </div>
         </div>
+
+        <div className="message">{message}</div>
 
         <div className="control">
           <div className="btn" onClick={reserveClickHandler}>
@@ -174,6 +225,13 @@ export default function Home() {
           padding: 12px;
           font-size: 40px;
           width: 100%;
+        }
+
+        .message {
+          padding: 30px 0;
+          font-size: 30px;
+          text-align: center;
+          color: red;
         }
 
         .control {
