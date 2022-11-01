@@ -17,17 +17,18 @@ exports.handler = async function (event, _context) {
     };
   }
 
-  let reservations = [];
+  let reservation
   try {
-    reservations = JSON.parse(event.body);
+    reservation = JSON.parse(event.body);
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: error }),
+      body: JSON.stringify({ message: error.toString() }),
     };
   }
 
-  const batch = reservations.map(({ placeId, checkIn, checkOut, name }) => ({
+  const { placeId, checkIn, checkOut, name } = reservation
+  const batch = [{
     PutRequest: {
       Item: {
         placeId,
@@ -36,7 +37,7 @@ exports.handler = async function (event, _context) {
         name,
       },
     },
-  }));
+  }];
 
   const params = {
     RequestItems: {

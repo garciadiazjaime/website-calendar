@@ -23,31 +23,19 @@ const places = [
 
 export default function Home() {
   const [message, setMessage] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState({});
+  const [selectedPlace, setSelectedPlace] = useState(null);
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
   const [loading, setLoading] = useState(false);
   const nameInputRef = useRef(null);
 
   const placeClickHandler = (id) => {
-    const newState = {
-      ...selectedPlace,
-    };
-    newState[id] = newState[id] === undefined ? true : !newState[id];
-
-    setSelectedPlace(newState);
+    setSelectedPlace(id);
   };
 
   const isReservationValid = () => {
-    const isCabinValid = Object.keys(selectedPlace).reduce((accu, id) => {
-      if (selectedPlace[id]) {
-        accu = true;
-      }
 
-      return accu;
-    }, false);
-
-    if (!isCabinValid) {
+    if (!selectedPlace) {
       setMessage("Select a cabin");
       return false;
     }
@@ -91,13 +79,10 @@ export default function Home() {
     setMessage("");
     setLoading(true);
 
-    checkIn.setUTCHours(22, 0, 0, 0);
-    checkOut.setUTCHours(18, 0, 0, 0);
-
     const payload = {
-      places: selectedPlace,
-      checkIn: checkIn,
-      checkOut: checkOut,
+      place: selectedPlace,
+      checkIn: checkIn.toJSON().split('T')[0],
+      checkOut: checkOut.toJSON().split('T')[0],
       name: nameInputRef.current.value,
     };
 
@@ -123,7 +108,7 @@ export default function Home() {
             <div
               key={place.id}
               onClick={() => placeClickHandler(place.id)}
-              className={selectedPlace[place.id] ? "place-selected" : ""}
+              className={selectedPlace === place.id ? "place-selected" : ""}
             >
               {place.title}
             </div>
