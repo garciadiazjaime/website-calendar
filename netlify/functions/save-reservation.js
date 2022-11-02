@@ -8,54 +8,136 @@ AWS.config.update({
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 
+function getOccupancy(reservation) {
+  const checkIn = new Date(reservation.checkIn);
+  const checkOut = new Date(reservation.checkOut);
+  const occupancy = [];
+
+  while (checkIn < checkOut) {
+    occupancy.push({
+      placeId: reservation.placeId,
+      date: checkIn.toJSON().split("T")[0],
+    });
+    checkIn.setDate(checkIn.getDate() + 1);
+  }
+
+  return occupancy;
+}
+
+function getCabinAvailability(occupancy) {
+  const items = occupancy.map((item) => ({
+    placeId: item.placeId,
+    date: item.date,
+  }));
+
+  const params = {
+    RequestItems: {
+      occupancy: {
+        Keys: items,
+      },
+    },
+  };
+
+  return documentClient.batchGet(params).promise();
+}
+
+function saveOccupancy(occupancy) {
+  const batch = occupancy.map((item) => ({
+    PutRequest: {
+      Item: {
+        placeId: item.placeId,
+        date: item.date,
+      },
+    },
+  }));
+
+  const params = {
+    RequestItems: {
+      occupancy: batch,
+    },
+  };
+
+  return documentClient.batchWrite(params).promise();
+}
+
+function saveReservation(reservation) {
+  const { placeId, checkIn, checkOut, name } = reservation;
+
+  const batch = [
+    {
+      PutRequest: {
+        Item: {
+          placeId,
+          checkIn,
+          checkOut,
+          name,
+        },
+      },
+    },
+  ];
+
+  const params = {
+    RequestItems: {
+      reservation: batch,
+    },
+  };
+
+  return documentClient.batchWrite(params).promise();
+}
 
 exports.handler = async function (event, _context) {
   if (!event.body) {
     return {
-      statusCode: 500,
-      body: JSON.stringify({ message: "EMPTY_BODY" }),
+      statusCode: 400,
+      body: JSON.stringify({
+        code: "EMPTY_BODY",
+      }),
     };
   }
 
-  let reservation
+  let reservation;
+
   try {
     reservation = JSON.parse(event.body);
   } catch (error) {
     return {
-      statusCode: 500,
-      body: JSON.stringify({ message: error.toString() }),
+      statusCode: 400,
+      body: JSON.stringify({
+        message: error.toString(),
+      }),
     };
   }
 
-  const { placeId, checkIn, checkOut, name } = reservation
-  const batch = [{
-    PutRequest: {
-      Item: {
-        placeId,
-        checkIn,
-        checkOut,
-        name,
-      },
-    },
-  }];
+  const occupancy = getOccupancy(reservation);
 
-  const params = {
-    RequestItems: {
-      valle_reservations: batch,
-    },
-  };
+  const cabinAvailability = await getCabinAvailability(occupancy);
+
+  if (cabinAvailability.Responses?.occupancy?.length) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        code: "INVALID_DATES",
+        message: cabinAvailability.Responses.occupancy,
+      }),
+    };
+  }
 
   try {
-    await documentClient.batchWrite(params).promise();
+    await saveReservation(reservation);
+    await saveOccupancy(occupancy);
   } catch (error) {
     return {
-      statusCode: 500,
-      body: JSON.stringify(error),
+      statusCode: 400,
+      body: JSON.stringify({
+        message: error.toString(),
+      }),
     };
   }
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ message: "SAVED" }),
+    body: JSON.stringify({
+      code: "SAVED",
+    }),
   };
 };
