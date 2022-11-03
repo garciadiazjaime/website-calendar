@@ -30,6 +30,9 @@ exports.handler = async function (event, _context) {
   let reservation;
   try {
     reservation = JSON.parse(event.body);
+    if (reservation.placeId) {
+      reservation.placeId = reservation.placeId.toString();
+    }
   } catch (error) {
     return {
       statusCode: 400,

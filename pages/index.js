@@ -54,7 +54,7 @@ export default function Home() {
     };
 
     const response = await saveReservation(payload);
-    if (response.status !== 200) {
+    if (response.status !== 201) {
       setMessages(["Error, try again"]);
     }
 

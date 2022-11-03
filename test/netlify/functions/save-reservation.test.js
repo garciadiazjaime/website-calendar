@@ -185,7 +185,7 @@ describe("save-reservation", () => {
 
       const event = {
         body: JSON.stringify({
-          placeId: "1",
+          placeId: 1,
           checkIn: today.toJSON().split("T")[0],
           checkOut: tomorrow.toJSON().split("T")[0],
           email: "test@domain.com",
