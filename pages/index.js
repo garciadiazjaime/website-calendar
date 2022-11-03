@@ -4,7 +4,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
 import Loading from "../components/loading";
-import { saveReservation } from "../support/reservation-service";
+import { saveReservation, getReservationErrors } from "../support/reservation-service";
 
 const places = [
   {
@@ -22,73 +22,40 @@ const places = [
 ];
 
 export default function Home() {
-  const [message, setMessage] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [placeId, setPlaceId] = useState(null);
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
   const [loading, setLoading] = useState(false);
-  const nameInputRef = useRef(null);
-
-  const placeClickHandler = (id) => {
-    setSelectedPlace(id);
-  };
-
-  const isReservationValid = () => {
-
-    if (!selectedPlace) {
-      setMessage("Select a cabin");
-      return false;
-    }
-
-    if (!checkIn) {
-      setMessage("Check-in is empty");
-      return false;
-    }
-
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    if (checkIn < yesterday) {
-      setMessage("Check-in can't be before today");
-      return false;
-    }
-
-
-    if (!checkOut) {
-      setMessage("Check-out is empty");
-      return false;
-    }
-
-    if (checkIn >= checkOut) {
-      setMessage("Check-in needs to be before Check-out");
-      return false;
-    }
-
-    if (!nameInputRef.current.value) {
-      setMessage("Name is empty");
-      return false;
-    }
-
-    return true;
-  };
+  const emailInputRef = useRef(null);
 
   const reserveClickHandler = async () => {
-    if (!isReservationValid()) {
+    setMessages([]);
+
+    const errors = getReservationErrors({
+      placeId, 
+      checkIn, 
+      checkOut,
+      email: emailInputRef.current.value
+    })
+    if (errors.length) {
+      setMessages(errors)
       return;
     }
 
-    setMessage("");
+    setMessages([]);
     setLoading(true);
 
     const payload = {
-      place: selectedPlace,
+      place: placeId,
       checkIn: checkIn.toJSON().split('T')[0],
       checkOut: checkOut.toJSON().split('T')[0],
-      name: nameInputRef.current.value,
+      email: emailInputRef.current.value,
     };
 
     const response = await saveReservation(payload);
     if (response.status !== 200) {
-      setMessage("Error, try again");
+      setMessages(["Error, try again"]);
     }
 
     setLoading(false);
@@ -107,8 +74,8 @@ export default function Home() {
           {places.map((place) => (
             <div
               key={place.id}
-              onClick={() => placeClickHandler(place.id)}
-              className={selectedPlace === place.id ? "place-selected" : ""}
+              onClick={() => setPlaceId(place.id)}
+              className={placeId === place.id ? "place-selected" : ""}
             >
               {place.title}
             </div>
@@ -137,12 +104,12 @@ export default function Home() {
 
         <div className="contact-reservation">
           <div>
-            Name <br />
-            <input type="text" ref={nameInputRef} />
+            Email <br />
+            <input type="text" ref={emailInputRef} />
           </div>
         </div>
 
-        <div className="message">{message}</div>
+        <div className="message">{messages.map(message => <p>{message}</p>)}</div>
 
         <div className="control">
           <div className="btn" onClick={reserveClickHandler}>

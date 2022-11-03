@@ -1,12 +1,12 @@
-export async function saveReservation(payload) {
+module.exports.saveReservation = (payload) => {
   const url = ".netlify/functions/save-reservation";
-  const { place: placeId, checkIn, checkOut, name } = payload;
+  const { place: placeId, checkIn, checkOut, email } = payload;
 
   const reservation = {
     placeId,
     checkIn,
     checkOut,
-    name,
+    email,
   }
 
   return fetch(url, {
@@ -17,3 +17,35 @@ export async function saveReservation(payload) {
     },
   });
 }
+
+module.exports.getReservationErrors = (props) => {
+  const { placeId, checkIn, checkOut, email } = props
+  const errors = []
+  if (!placeId) {
+    errors.push("Select a cabin");
+  }
+
+  if (!checkIn) {
+    errors.push("Check-in is empty");
+  }
+
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  if (checkIn < yesterday) {
+    errors.push("Check-in can't be before today");
+  }
+
+  if (!checkOut) {
+    errors.push("Check-out is empty");
+  }
+
+  if (checkIn >= checkOut) {
+    errors.push("Check-in needs to be before Check-out");
+  }
+
+  if (!email) {
+    errors.push("Email is empty");
+  }
+
+  return errors;
+};

@@ -1,12 +1,5 @@
-const AWS = require("aws-sdk");
-
-AWS.config.update({
-  region: "us-east-1",
-  accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
-});
-
-const documentClient = new AWS.DynamoDB.DocumentClient();
+const { getReservationErrors } = require("../../support/reservation-service");
+const dynamoService = require("../../support/dynamo-service");
 
 function getOccupancy(reservation) {
   const checkIn = new Date(reservation.checkIn);
@@ -24,67 +17,6 @@ function getOccupancy(reservation) {
   return occupancy;
 }
 
-function getCabinAvailability(occupancy) {
-  const items = occupancy.map((item) => ({
-    placeId: item.placeId,
-    date: item.date,
-  }));
-
-  const params = {
-    RequestItems: {
-      occupancy: {
-        Keys: items,
-      },
-    },
-  };
-
-  return documentClient.batchGet(params).promise();
-}
-
-function saveOccupancy(occupancy) {
-  const batch = occupancy.map((item) => ({
-    PutRequest: {
-      Item: {
-        placeId: item.placeId,
-        date: item.date,
-      },
-    },
-  }));
-
-  const params = {
-    RequestItems: {
-      occupancy: batch,
-    },
-  };
-
-  return documentClient.batchWrite(params).promise();
-}
-
-function saveReservation(reservation) {
-  const { placeId, checkIn, checkOut, name } = reservation;
-
-  const batch = [
-    {
-      PutRequest: {
-        Item: {
-          placeId,
-          checkIn,
-          checkOut,
-          name,
-        },
-      },
-    },
-  ];
-
-  const params = {
-    RequestItems: {
-      reservation: batch,
-    },
-  };
-
-  return documentClient.batchWrite(params).promise();
-}
-
 exports.handler = async function (event, _context) {
   if (!event.body) {
     return {
@@ -96,7 +28,6 @@ exports.handler = async function (event, _context) {
   }
 
   let reservation;
-
   try {
     reservation = JSON.parse(event.body);
   } catch (error) {
@@ -108,10 +39,20 @@ exports.handler = async function (event, _context) {
     };
   }
 
+  const errors = getReservationErrors(reservation);
+  if (errors.length) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        code: "INVALID_DATA",
+        message: errors,
+      }),
+    };
+  }
+
   const occupancy = getOccupancy(reservation);
 
-  const cabinAvailability = await getCabinAvailability(occupancy);
-
+  const cabinAvailability = await dynamoService.getCabinAvailability(occupancy);
   if (cabinAvailability.Responses?.occupancy?.length) {
     return {
       statusCode: 400,
@@ -123,8 +64,8 @@ exports.handler = async function (event, _context) {
   }
 
   try {
-    await saveReservation(reservation);
-    await saveOccupancy(occupancy);
+    await dynamoService.saveReservation(reservation);
+    await dynamoService.saveOccupancy(occupancy);
   } catch (error) {
     return {
       statusCode: 400,
@@ -135,7 +76,7 @@ exports.handler = async function (event, _context) {
   }
 
   return {
-    statusCode: 200,
+    statusCode: 201,
     body: JSON.stringify({
       code: "SAVED",
     }),
