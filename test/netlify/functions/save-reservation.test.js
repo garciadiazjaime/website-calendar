@@ -1,6 +1,6 @@
-const dynamoService = require("../../support/dynamo-service");
+const dynamoService = require("../../../support/dynamo-service");
 
-const { handler: saveReservation } = require("./save-reservation");
+const { handler: saveReservation } = require("../../../netlify/functions/save-reservation");
 
 jest.mock("aws-sdk", () => ({
   config: {
