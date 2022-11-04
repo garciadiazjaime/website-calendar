@@ -4,7 +4,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
 import Loading from "../components/loading";
-import { saveReservation, getReservationErrors } from "../support/reservation-service";
+import { saveReservation, getReservationErrors, REQUEST_STATUS } from "../support/reservation-service";
 
 const places = [
   {
@@ -21,6 +21,15 @@ const places = [
   },
 ];
 
+function getErrorMessage(payload) {
+  const { status } = payload
+  if (status === REQUEST_STATUS.INVALID_DATES) {
+    return ["Dates not available"]  
+  }
+
+  return ["Error, please try again"]
+}
+
 export default function Home() {
   const [messages, setMessages] = useState([]);
   const [placeId, setPlaceId] = useState(null);
@@ -28,6 +37,13 @@ export default function Home() {
   const [checkOut, setCheckOut] = useState(null);
   const [loading, setLoading] = useState(false);
   const emailInputRef = useRef(null);
+
+  const cleanForm = () => {
+    setPlaceId('')
+    setCheckIn('')
+    setCheckOut('')
+    emailInputRef.current.value = ''
+  }
 
   const reserveClickHandler = async () => {
     setMessages([]);
@@ -55,7 +71,14 @@ export default function Home() {
 
     const response = await saveReservation(payload);
     if (response.status !== 201) {
-      setMessages(["Error, try again"]);
+      const errorMessage = getErrorMessage(response.body) 
+      setMessages([errorMessage]);
+    } else {
+      setMessages(["Request submitted, check your email for confirmation."]);
+      setTimeout(() => {
+        setMessages('')
+      }, 1000 * 6)
+      cleanForm()
     }
 
     setLoading(false);
@@ -109,7 +132,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="message">{messages.map(message => <p>{message}</p>)}</div>
+        <div className="message">{messages.map((message, index) => <p key={index}>{message}</p>)}</div>
 
         <div className="control">
           <div className="btn" onClick={reserveClickHandler}>

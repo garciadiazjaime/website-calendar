@@ -1,3 +1,12 @@
+module.exports.REQUEST_STATUS = {
+  EMPTY_BODY:'EMPTY_BODY',
+  INVALID_FORMAT: 'INVALID_FORMAT',
+  INVALID_DATA: 'INVALID_DATA',
+  INVALID_DATES: 'INVALID_DATES',
+  DB_ERROR: 'DB_ERROR',
+  SUCCESS: 'SUCCESS',
+}
+
 module.exports.saveReservation = (payload) => {
   const url = ".netlify/functions/save-reservation";
   const { place: placeId, checkIn, checkOut, email } = payload;

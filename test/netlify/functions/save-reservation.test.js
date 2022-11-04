@@ -1,6 +1,8 @@
 const dynamoService = require("../../../support/dynamo-service");
 
-const { handler: saveReservation } = require("../../../netlify/functions/save-reservation");
+const {
+  handler: saveReservation,
+} = require("../../../netlify/functions/save-reservation");
 
 jest.mock("aws-sdk", () => ({
   config: {
@@ -20,7 +22,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
-        body: '{"code":"EMPTY_BODY"}',
+        body: '{"status":"EMPTY_BODY"}',
       });
     });
   });
@@ -35,7 +37,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
-        body: '{"message":"SyntaxError: Unexpected token s in JSON at position 0"}',
+        body: '{"status":"INVALID_FORMAT","message":"SyntaxError: Unexpected token s in JSON at position 0"}',
       });
     });
   });
@@ -50,7 +52,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
-        body: '{"code":"INVALID_DATA","message":["Select a cabin","Check-in is empty","Check-out is empty","Email is empty"]}',
+        body: '{"status":"INVALID_DATA","message":["Select a cabin","Check-in is empty","Check-out is empty","Email is empty"]}',
       });
     });
   });
@@ -82,7 +84,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
-        body: '{"code":"INVALID_DATES","message":[{}]}',
+        body: '{"status":"INVALID_DATES","message":[{}]}',
       });
     });
   });
@@ -117,7 +119,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
-        body: '{"message":"saveReservation-error"}',
+        body: '{"status":"DB_ERROR","message":"saveReservation-error"}',
       });
     });
   });
@@ -155,7 +157,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
-        body: '{"message":"saveOccupancy-error"}',
+        body: '{"status":"DB_ERROR","message":"saveOccupancy-error"}',
       });
     });
   });
@@ -179,8 +181,8 @@ describe("save-reservation", () => {
       mockSaveReservation.mockClear();
       mockSaveOccupancy.mockClear();
 
-      const today = new Date();
-      const tomorrow = new Date();
+      const today = new Date("2022-11-03");
+      const tomorrow = new Date("2022-11-03");
       tomorrow.setDate(tomorrow.getDate() + 2);
 
       const event = {
@@ -196,7 +198,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 201,
-        body: '{"code":"SAVED"}',
+        body: '{"status":"SUCCESS"}',
       });
       expect(mockSaveReservation).toHaveBeenCalledWith({
         checkIn: "2022-11-03",

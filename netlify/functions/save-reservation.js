@@ -1,4 +1,4 @@
-const { getReservationErrors } = require("../../support/reservation-service");
+const { getReservationErrors, REQUEST_STATUS } = require("../../support/reservation-service");
 const dynamoService = require("../../support/dynamo-service");
 
 function getOccupancy(reservation) {
@@ -22,7 +22,7 @@ exports.handler = async function (event, _context) {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        code: "EMPTY_BODY",
+        status: REQUEST_STATUS.EMPTY_BODY,
       }),
     };
   }
@@ -37,6 +37,7 @@ exports.handler = async function (event, _context) {
     return {
       statusCode: 400,
       body: JSON.stringify({
+        status: REQUEST_STATUS.INVALID_FORMAT,
         message: error.toString(),
       }),
     };
@@ -47,7 +48,7 @@ exports.handler = async function (event, _context) {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        code: "INVALID_DATA",
+        status: REQUEST_STATUS.INVALID_DATA,
         message: errors,
       }),
     };
@@ -60,7 +61,7 @@ exports.handler = async function (event, _context) {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        code: "INVALID_DATES",
+        status: REQUEST_STATUS.INVALID_DATES,
         message: cabinAvailability.Responses.occupancy,
       }),
     };
@@ -73,6 +74,7 @@ exports.handler = async function (event, _context) {
     return {
       statusCode: 400,
       body: JSON.stringify({
+        status: REQUEST_STATUS.DB_ERROR,
         message: error.toString(),
       }),
     };
@@ -81,7 +83,7 @@ exports.handler = async function (event, _context) {
   return {
     statusCode: 201,
     body: JSON.stringify({
-      code: "SAVED",
+      status: REQUEST_STATUS.SUCCESS,
     }),
   };
 };
