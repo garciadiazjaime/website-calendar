@@ -14,6 +14,12 @@ jest.mock("aws-sdk", () => ({
 }));
 
 describe("save-reservation", () => {
+  beforeAll(() => {
+    global.crypto = {
+      randomUUID: () => "reservation-random-uuid",
+    };
+  });
+
   describe("when body is empty", () => {
     it("returns expected response", async () => {
       const event = {};
@@ -205,10 +211,19 @@ describe("save-reservation", () => {
         checkOut: "2022-11-05",
         email: "test@domain.com",
         placeId: "1",
+        uuid: "reservation-random-uuid",
       });
       expect(mockSaveOccupancy).toHaveBeenCalledWith([
-        { date: "2022-11-03", placeId: "1" },
-        { date: "2022-11-04", placeId: "1" },
+        {
+          date: "2022-11-03",
+          placeId: "1",
+          reservation: "reservation-random-uuid",
+        },
+        {
+          date: "2022-11-04",
+          placeId: "1",
+          reservation: "reservation-random-uuid",
+        },
       ]);
     });
   });

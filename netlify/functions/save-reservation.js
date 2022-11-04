@@ -10,6 +10,7 @@ function getOccupancy(reservation) {
     occupancy.push({
       placeId: reservation.placeId,
       date: checkIn.toJSON().split("T")[0],
+      reservation: reservation.uuid,
     });
     checkIn.setDate(checkIn.getDate() + 1);
   }
@@ -30,9 +31,6 @@ exports.handler = async function (event, _context) {
   let reservation;
   try {
     reservation = JSON.parse(event.body);
-    if (reservation.placeId) {
-      reservation.placeId = reservation.placeId.toString();
-    }
   } catch (error) {
     return {
       statusCode: 400,
@@ -54,6 +52,8 @@ exports.handler = async function (event, _context) {
     };
   }
 
+  reservation.placeId = reservation.placeId.toString();
+  reservation.uuid = crypto.randomUUID()
   const occupancy = getOccupancy(reservation);
 
   const cabinAvailability = await dynamoService.getCabinAvailability(occupancy);

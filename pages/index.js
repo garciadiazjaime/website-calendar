@@ -8,15 +8,15 @@ import { saveReservation, getReservationErrors, REQUEST_STATUS } from "../suppor
 
 const places = [
   {
-    id: 1,
+    id: '167e753d-9d6a-43bd-930f-8ae1db3a35c3',
     title: "Cabain #1",
   },
   {
-    id: 2,
+    id: '2421452e-b801-4040-a6df-86450d9b98f6',
     title: "Cabain #2",
   },
   {
-    id: 3,
+    id: '3fe13ccf-bfe5-4f5a-ab30-e4f154c25d9c',
     title: "Cabain #3",
   },
 ];
