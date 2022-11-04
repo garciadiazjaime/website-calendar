@@ -1,4 +1,4 @@
-const { getReservationErrors, REQUEST_STATUS } = require("../../support/reservation-service");
+const { getReservationErrors, REQUEST_STATUS, RESERVATION_STATUS } = require("../../support/reservation-service");
 const dynamoService = require("../../support/dynamo-service");
 
 function getOccupancy(reservation) {
@@ -54,6 +54,7 @@ exports.handler = async function (event, _context) {
 
   reservation.placeId = reservation.placeId.toString();
   reservation.uuid = crypto.randomUUID()
+  reservation.status = RESERVATION_STATUS.REQUESTED;
   const occupancy = getOccupancy(reservation);
 
   const cabinAvailability = await dynamoService.getCabinAvailability(occupancy);

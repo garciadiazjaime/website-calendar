@@ -51,14 +51,14 @@ describe("save-reservation", () => {
   describe("when data is missing", () => {
     it("returns expected response", async () => {
       const event = {
-        body: "{}",
+        body: '{"email": "test@gmail"}',
       };
 
       const response = await saveReservation(event);
 
       expect(response).toEqual({
         statusCode: 400,
-        body: '{"status":"INVALID_DATA","message":["Select a cabin","Check-in is empty","Check-out is empty","Email is empty"]}',
+        body: '{"status":"INVALID_DATA","message":["Select a cabin","Check-in is empty","Check-out is empty","Email is invalid"]}',
       });
     });
   });
@@ -211,6 +211,7 @@ describe("save-reservation", () => {
         checkOut: "2022-11-05",
         email: "test@domain.com",
         placeId: "1",
+        status: "REQUESTED",
         uuid: "reservation-random-uuid",
       });
       expect(mockSaveOccupancy).toHaveBeenCalledWith([

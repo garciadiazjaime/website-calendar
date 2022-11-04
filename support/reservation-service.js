@@ -1,11 +1,17 @@
 module.exports.REQUEST_STATUS = {
-  EMPTY_BODY:'EMPTY_BODY',
-  INVALID_FORMAT: 'INVALID_FORMAT',
-  INVALID_DATA: 'INVALID_DATA',
-  INVALID_DATES: 'INVALID_DATES',
-  DB_ERROR: 'DB_ERROR',
-  SUCCESS: 'SUCCESS',
-}
+  EMPTY_BODY: "EMPTY_BODY",
+  INVALID_FORMAT: "INVALID_FORMAT",
+  INVALID_DATA: "INVALID_DATA",
+  INVALID_DATES: "INVALID_DATES",
+  DB_ERROR: "DB_ERROR",
+  SUCCESS: "SUCCESS",
+};
+
+module.exports.RESERVATION_STATUS = {
+  REQUESTED: "REQUESTED",
+  CONFIRMED: "CONFIRMED",
+  CANCELED: "CANCELED",
+};
 
 module.exports.saveReservation = (payload) => {
   const url = ".netlify/functions/save-reservation";
@@ -16,7 +22,7 @@ module.exports.saveReservation = (payload) => {
     checkIn,
     checkOut,
     email,
-  }
+  };
 
   return fetch(url, {
     method: "POST",
@@ -25,11 +31,21 @@ module.exports.saveReservation = (payload) => {
       "Content-Type": "application/json",
     },
   });
-}
+};
+
+const isEmailValid = (email) => {
+  if (
+    /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)
+  ) {
+    return true;
+  }
+
+  return false;
+};
 
 module.exports.getReservationErrors = (props) => {
-  const { placeId, checkIn, checkOut, email } = props
-  const errors = []
+  const { placeId, checkIn, checkOut, email } = props;
+  const errors = [];
   if (!placeId) {
     errors.push("Select a cabin");
   }
@@ -38,8 +54,8 @@ module.exports.getReservationErrors = (props) => {
     errors.push("Check-in is empty");
   }
 
-  const yesterday = new Date()
-  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
   if (checkIn < yesterday) {
     errors.push("Check-in can't be before today");
   }
@@ -52,8 +68,8 @@ module.exports.getReservationErrors = (props) => {
     errors.push("Check-in needs to be before Check-out");
   }
 
-  if (!email) {
-    errors.push("Email is empty");
+  if (!email || !isEmailValid(email)) {
+    errors.push("Email is invalid");
   }
 
   return errors;
