@@ -25,6 +25,9 @@ exports.handler = async function (event, _context) {
   if (!event.body) {
     return {
       statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         status: REQUEST_STATUS.EMPTY_BODY,
       }),
@@ -37,6 +40,9 @@ exports.handler = async function (event, _context) {
   } catch (error) {
     return {
       statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         status: REQUEST_STATUS.INVALID_FORMAT,
         message: error.toString(),
@@ -48,6 +54,9 @@ exports.handler = async function (event, _context) {
   if (errors.length) {
     return {
       statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         status: REQUEST_STATUS.INVALID_DATA,
         message: errors,
@@ -64,6 +73,9 @@ exports.handler = async function (event, _context) {
   if (cabinAvailability.Responses?.occupancy?.length) {
     return {
       statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         status: REQUEST_STATUS.INVALID_DATES,
         message: cabinAvailability.Responses.occupancy,
@@ -77,6 +89,9 @@ exports.handler = async function (event, _context) {
   } catch (error) {
     return {
       statusCode: 400,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         status: REQUEST_STATUS.DB_ERROR,
         message: error.toString(),
@@ -88,6 +103,9 @@ exports.handler = async function (event, _context) {
 
   return {
     statusCode: 201,
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
       status: REQUEST_STATUS.SUCCESS,
     }),

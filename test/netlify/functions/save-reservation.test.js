@@ -27,6 +27,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
+        headers: { "Content-Type": "application/json" },
         body: '{"status":"EMPTY_BODY"}',
       });
     });
@@ -42,6 +43,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
+        headers: { "Content-Type": "application/json" },
         body: '{"status":"INVALID_FORMAT","message":"SyntaxError: Unexpected token s in JSON at position 0"}',
       });
     });
@@ -57,6 +59,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
         body: '{"status":"INVALID_DATA","message":["Select a cabin","Check-in is empty","Check-out is empty","Email is invalid"]}',
       });
     });
@@ -89,6 +92,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
+        headers: { "Content-Type": "application/json" },
         body: '{"status":"INVALID_DATES","message":[{}]}',
       });
     });
@@ -124,6 +128,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
+        headers: { "Content-Type": "application/json" },
         body: '{"status":"DB_ERROR","message":"saveReservation-error"}',
       });
     });
@@ -162,6 +167,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
         body: '{"status":"DB_ERROR","message":"saveOccupancy-error"}',
       });
     });
@@ -206,6 +212,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 201,
+        headers: { 'Content-Type': 'application/json' },
         body: '{"status":"SUCCESS"}',
       });
       expect(mockSaveReservation).toHaveBeenCalledWith({
