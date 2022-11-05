@@ -5,7 +5,6 @@ const sendEmail = (props) => {
   const { text, html, subject, from, to } = props;
 
   const payload = {
-    email,
     text,
     html,
     subject,

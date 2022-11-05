@@ -75,7 +75,6 @@ export default function Home() {
     };
 
     const response = await saveReservation(payload);
-    console.log(response)
     if (response.status !== 201) {
       const errorMessage = await getErrorMessage(response);
 
