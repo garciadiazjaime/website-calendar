@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require('uuid');
+
 const { getReservationErrors, REQUEST_STATUS, RESERVATION_STATUS } = require("../../support/reservation-service");
 const dynamoService = require("../../support/dynamo-service");
 
@@ -53,7 +55,7 @@ exports.handler = async function (event, _context) {
   }
 
   reservation.placeId = reservation.placeId.toString();
-  reservation.uuid = crypto.randomUUID()
+  reservation.uuid = uuidv4()
   reservation.status = RESERVATION_STATUS.REQUESTED;
   const occupancy = getOccupancy(reservation);
 

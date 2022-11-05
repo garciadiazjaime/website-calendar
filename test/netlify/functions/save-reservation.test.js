@@ -13,13 +13,11 @@ jest.mock("aws-sdk", () => ({
   },
 }));
 
-describe("save-reservation", () => {
-  beforeAll(() => {
-    global.crypto = {
-      randomUUID: () => "reservation-random-uuid",
-    };
-  });
+jest.mock('uuid', () => ({
+  v4: () => 'reservation-random-uuid'
+}))
 
+describe("save-reservation", () => {
   describe("when body is empty", () => {
     it("returns expected response", async () => {
       const event = {};
