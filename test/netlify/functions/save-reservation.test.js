@@ -1,4 +1,5 @@
 const dynamoService = require("../../../support/dynamo-service");
+const emailService = require("../../../support/email-service");
 
 const {
   handler: saveReservation,
@@ -13,9 +14,9 @@ jest.mock("aws-sdk", () => ({
   },
 }));
 
-jest.mock('uuid', () => ({
-  v4: () => 'reservation-random-uuid'
-}))
+jest.mock("uuid", () => ({
+  v4: () => "reservation-random-uuid",
+}));
 
 describe("save-reservation", () => {
   describe("when body is empty", () => {
@@ -181,6 +182,9 @@ describe("save-reservation", () => {
       const mockSaveOccupancy = jest
         .spyOn(dynamoService, "saveOccupancy")
         .mockImplementation(() => Promise.resolve());
+      const mockSendReservationEmail = jest
+        .spyOn(emailService, "sendReservationEmail")
+        .mockImplementation(() => {});
 
       mockSaveReservation.mockClear();
       mockSaveOccupancy.mockClear();
@@ -224,6 +228,14 @@ describe("save-reservation", () => {
           reservation: "reservation-random-uuid",
         },
       ]);
+      expect(mockSendReservationEmail).toHaveBeenCalledWith({
+        checkIn: "2022-11-03",
+        checkOut: "2022-11-05",
+        email: "test@domain.com",
+        placeId: "1",
+        status: "REQUESTED",
+        uuid: "reservation-random-uuid",
+      });
     });
   });
 });

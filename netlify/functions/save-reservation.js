@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const { getReservationErrors, REQUEST_STATUS, RESERVATION_STATUS } = require("../../support/reservation-service");
 const dynamoService = require("../../support/dynamo-service");
+const emailService = require('../../support/email-service')
 
 function getOccupancy(reservation) {
   const checkIn = new Date(reservation.checkIn);
@@ -82,6 +83,8 @@ exports.handler = async function (event, _context) {
       }),
     };
   }
+
+  emailService.sendReservationEmail(reservation)
 
   return {
     statusCode: 201,

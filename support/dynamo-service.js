@@ -8,7 +8,7 @@ AWS.config.update({
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 
-const getCabinAvailability = (occupancy) => {
+module.exports.getCabinAvailability = (occupancy) => {
   const items = occupancy.map((item) => ({
     placeId: item.placeId,
     date: item.date,
@@ -25,7 +25,7 @@ const getCabinAvailability = (occupancy) => {
   return documentClient.batchGet(params).promise();
 };
 
-const saveOccupancy = (occupancy) => {
+module.exports.saveOccupancy = (occupancy) => {
   const batch = occupancy.map((item) => ({
     PutRequest: {
       Item: {
@@ -44,7 +44,7 @@ const saveOccupancy = (occupancy) => {
   return documentClient.batchWrite(params).promise();
 };
 
-const saveReservation = (reservation) => {
+module.exports.saveReservation = (reservation) => {
   const { placeId, checkIn, checkOut, name } = reservation;
 
   const batch = [
@@ -68,9 +68,3 @@ const saveReservation = (reservation) => {
 
   return documentClient.batchWrite(params).promise();
 };
-
-module.exports = {
-  getCabinAvailability,
-  saveOccupancy,
-  saveReservation,
-}
