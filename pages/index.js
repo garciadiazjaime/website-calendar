@@ -4,30 +4,35 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
 import Loading from "../components/loading";
-import { saveReservation, getReservationErrors, REQUEST_STATUS } from "../support/reservation-service";
+import {
+  saveReservation,
+  getReservationErrors,
+  REQUEST_STATUS,
+} from "../support/reservation-service";
 
 const places = [
   {
-    id: '167e753d-9d6a-43bd-930f-8ae1db3a35c3',
+    id: "167e753d-9d6a-43bd-930f-8ae1db3a35c3",
     title: "Cabain #1",
   },
   {
-    id: '2421452e-b801-4040-a6df-86450d9b98f6',
+    id: "2421452e-b801-4040-a6df-86450d9b98f6",
     title: "Cabain #2",
   },
   {
-    id: '3fe13ccf-bfe5-4f5a-ab30-e4f154c25d9c',
+    id: "3fe13ccf-bfe5-4f5a-ab30-e4f154c25d9c",
     title: "Cabain #3",
   },
 ];
 
 function getErrorMessage(payload) {
-  const { status } = payload
+  const { status, message } = payload;
   if (status === REQUEST_STATUS.INVALID_DATES) {
-    return ["Dates not available"]  
+    const invalidDates = message.map(({ date }) => `${date} is not available`);
+    return invalidDates;
   }
 
-  return ["Error, please try again"]
+  return ["Error, please try again"];
 }
 
 export default function Home() {
@@ -39,23 +44,23 @@ export default function Home() {
   const emailInputRef = useRef(null);
 
   const cleanForm = () => {
-    setPlaceId('')
-    setCheckIn('')
-    setCheckOut('')
-    emailInputRef.current.value = ''
-  }
+    setPlaceId("");
+    setCheckIn("");
+    setCheckOut("");
+    emailInputRef.current.value = "";
+  };
 
   const reserveClickHandler = async () => {
     setMessages([]);
 
     const errors = getReservationErrors({
-      placeId, 
-      checkIn, 
+      placeId,
+      checkIn,
       checkOut,
-      email: emailInputRef.current.value
-    })
+      email: emailInputRef.current.value,
+    });
     if (errors.length) {
-      setMessages(errors)
+      setMessages(errors);
       return;
     }
 
@@ -64,21 +69,22 @@ export default function Home() {
 
     const payload = {
       place: placeId,
-      checkIn: checkIn.toJSON().split('T')[0],
-      checkOut: checkOut.toJSON().split('T')[0],
+      checkIn: checkIn.toJSON().split("T")[0],
+      checkOut: checkOut.toJSON().split("T")[0],
       email: emailInputRef.current.value,
     };
 
     const response = await saveReservation(payload);
     if (response.status !== 201) {
-      const errorMessage = getErrorMessage(response.body) 
-      setMessages([errorMessage]);
+      const errorMessage = getErrorMessage(response.body);
+
+      setMessages(errorMessage);
     } else {
       setMessages(["Request submitted, check your email for confirmation."]);
       setTimeout(() => {
-        setMessages('')
-      }, 1000 * 6)
-      cleanForm()
+        setMessages("");
+      }, 1000 * 6);
+      cleanForm();
     }
 
     setLoading(false);
@@ -132,7 +138,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="message">{messages.map((message, index) => <p key={index}>{message}</p>)}</div>
+        <div className="message">
+          {messages.map((message, index) => (
+            <p key={index}>{message}</p>
+          ))}
+        </div>
 
         <div className="control">
           <div className="btn" onClick={reserveClickHandler}>
