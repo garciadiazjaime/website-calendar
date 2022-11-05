@@ -10,6 +10,11 @@ import {
   REQUEST_STATUS,
 } from "../support/reservation-service";
 
+const FORM_STATUS = {
+  ERROR: "ERROR",
+  SUCCESS: "SUCCESS",
+};
+
 const places = [
   {
     id: "167e753d-9d6a-43bd-930f-8ae1db3a35c3",
@@ -26,13 +31,21 @@ const places = [
 ];
 
 async function getErrorMessage(response) {
-  const { status, message } = await response.json()
+  const { status, message } = await response.json();
   if (status === REQUEST_STATUS.INVALID_DATES) {
-    const invalidDates = message.map(({ date }) => `${date} is not available`);
+    const invalidDates = message.map(({ date }) => ({
+      status: FORM_STATUS.ERROR,
+      message: `${date} is not available`,
+    }));
     return invalidDates;
   }
 
-  return ["Error, please try again"];
+  return [
+    {
+      status: FORM_STATUS.ERROR,
+      message: "Error, please try again",
+    },
+  ];
 }
 
 export default function Home() {
@@ -60,7 +73,12 @@ export default function Home() {
       email: emailInputRef.current.value,
     });
     if (errors.length) {
-      setMessages(errors);
+      setMessages(
+        errors.map((error) => ({
+          status: FORM_STATUS.ERROR,
+          message: error,
+        }))
+      );
       return;
     }
 
@@ -80,9 +98,14 @@ export default function Home() {
 
       setMessages(errorMessage);
     } else {
-      setMessages(["Request submitted, check your email for confirmation."]);
+      setMessages([
+        {
+          status: FORM_STATUS.SUCCESS,
+          message: "Request submitted, check your email for confirmation.",
+        },
+      ]);
       setTimeout(() => {
-        setMessages("");
+        setMessages([]);
       }, 1000 * 6);
       cleanForm();
     }
@@ -139,8 +162,15 @@ export default function Home() {
         </div>
 
         <div className="message">
-          {messages.map((message, index) => (
-            <p key={index}>{message}</p>
+          {messages.map((item, index) => (
+            <p
+              key={index}
+              className={
+                item.status === FORM_STATUS.SUCCESS ? "success" : "error"
+              }
+            >
+              {item.message}
+            </p>
           ))}
         </div>
 
@@ -174,6 +204,12 @@ export default function Home() {
         .container {
           min-height: 100vh;
           padding: 0 0.5rem;
+        }
+        .error {
+          color: red;
+        }
+        .success {
+          color: green;
         }
 
         .loading-wrapper {
@@ -228,6 +264,10 @@ export default function Home() {
           font-size: 40px;
           text-align: center;
           border: 1px solid;
+        }
+
+        .btn:hover {
+          cursor: pointer;
         }
 
         @media (max-width: 600px) {
