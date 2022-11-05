@@ -1,4 +1,4 @@
-const { getReservationErrors } = "./reservation-service";
+const { getReservationErrors } = require("./reservation-service");
 
 const sendEmail = (props) => {
   const url = ".netlify/functions/send-email-sendgrid";
