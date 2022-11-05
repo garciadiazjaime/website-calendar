@@ -25,8 +25,8 @@ const places = [
   },
 ];
 
-function getErrorMessage(payload) {
-  const { status, message } = payload
+async function getErrorMessage(response) {
+  const { status, message } = await response.json()
   if (status === REQUEST_STATUS.INVALID_DATES) {
     const invalidDates = message.map(({ date }) => `${date} is not available`);
     return invalidDates;
@@ -75,9 +75,9 @@ export default function Home() {
     };
 
     const response = await saveReservation(payload);
-    console.log(typeof response, response)
+    console.log(response)
     if (response.status !== 201) {
-      const errorMessage = getErrorMessage(response.body);
+      const errorMessage = await getErrorMessage(response);
 
       setMessages(errorMessage);
     } else {
