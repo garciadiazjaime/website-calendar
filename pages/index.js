@@ -25,8 +25,13 @@ const places = [
   },
 ];
 
-function getErrorMessage(payload) {
-  const { status, message } = payload;
+function getErrorMessage(data) {
+  let payload;
+  try {
+    payload = JSON.parse(data);
+  } catch (_) {}
+
+  const { status, message } = payload || {};
   if (status === REQUEST_STATUS.INVALID_DATES) {
     const invalidDates = message.map(({ date }) => `${date} is not available`);
     return invalidDates;
