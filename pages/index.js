@@ -165,7 +165,7 @@ export default function Home() {
 
       <footer>Lúptico</footer>
 
-      <style jsx>{`
+      <style jsx="true">{`
         header,
         footer {
           height: 120px;
@@ -243,7 +243,7 @@ export default function Home() {
         }
       `}</style>
 
-      <style jsx global>{`
+      <style jsx="true" global="true">{`
         html,
         body {
           padding: 0;
