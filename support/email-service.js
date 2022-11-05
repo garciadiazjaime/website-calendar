@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');
+
 const { getReservationErrors } = require("./reservation-service");
 
 const sendEmail = (props) => {
