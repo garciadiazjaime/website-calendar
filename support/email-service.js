@@ -1,9 +1,11 @@
-const fetch = require('node-fetch');
+const fetch = require("node-fetch");
 
 const { getReservationErrors } = require("./reservation-service");
 
+const EMAIL_BASE_URL = process.env.EMAIL_BASE_URL;
+
 const sendEmail = (props) => {
-  const url = ".netlify/functions/send-email-sendgrid";
+  const url = `${EMAIL_BASE_URL}/.netlify/functions/send-email-sendgrid`;
   const { text, html, subject, from, to } = props;
 
   const payload = {

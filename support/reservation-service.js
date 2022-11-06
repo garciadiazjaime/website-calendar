@@ -1,3 +1,5 @@
+const { isEmailValid } = require('./validation')
+
 module.exports.REQUEST_STATUS = {
   EMPTY_BODY: "EMPTY_BODY",
   INVALID_FORMAT: "INVALID_FORMAT",
@@ -33,14 +35,6 @@ module.exports.saveReservation = (payload) => {
   });
 };
 
-const isEmailValid = (email) => {
-  if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-    return true;
-  }
-
-  return false;
-};
-
 module.exports.getReservationErrors = (props) => {
   const { placeId, checkIn, checkOut, email } = props;
   const errors = [];
@@ -66,7 +60,7 @@ module.exports.getReservationErrors = (props) => {
     errors.push("Check-in needs to be before Check-out");
   }
 
-  if (!email || !isEmailValid(email)) {
+  if (!isEmailValid(email)) {
     errors.push("Email is invalid");
   }
 

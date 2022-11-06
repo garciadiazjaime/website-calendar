@@ -59,7 +59,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: '{"status":"INVALID_DATA","message":["Select a cabin","Check-in is empty","Check-out is empty","Email is invalid"]}',
       });
     });
@@ -167,7 +167,7 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: '{"status":"DB_ERROR","message":"saveOccupancy-error"}',
       });
     });
@@ -190,7 +190,9 @@ describe("save-reservation", () => {
         .mockImplementation(() => Promise.resolve());
       const mockSendReservationEmail = jest
         .spyOn(emailService, "sendReservationEmail")
-        .mockImplementation(() => {});
+        .mockImplementation(() =>
+          Promise.resolve("send_reservation_email_response")
+        );
 
       mockSaveReservation.mockClear();
       mockSaveOccupancy.mockClear();
@@ -212,8 +214,8 @@ describe("save-reservation", () => {
 
       expect(response).toEqual({
         statusCode: 201,
-        headers: { 'Content-Type': 'application/json' },
-        body: '{"status":"SUCCESS"}',
+        headers: { "Content-Type": "application/json" },
+        body: '{"status":"SUCCESS","email":"send_reservation_email_response"}',
       });
       expect(mockSaveReservation).toHaveBeenCalledWith({
         checkIn: "2022-11-03",
