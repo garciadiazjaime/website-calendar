@@ -26,11 +26,12 @@ module.exports.getCabinAvailability = (occupancy) => {
 };
 
 module.exports.saveOccupancy = (occupancy) => {
-  const batch = occupancy.map((item) => ({
+  const batch = occupancy.map(({ placeId, date, reservation }) => ({
     PutRequest: {
       Item: {
-        placeId: item.placeId,
-        date: item.date,
+        placeId,
+        date,
+        reservation,
       },
     },
   }));
@@ -45,7 +46,7 @@ module.exports.saveOccupancy = (occupancy) => {
 };
 
 module.exports.saveReservation = (reservation) => {
-  const { placeId, checkIn, checkOut, name } = reservation;
+  const { placeId, checkIn, checkOut, email, status, uuid } = reservation;
 
   const batch = [
     {
@@ -54,7 +55,9 @@ module.exports.saveReservation = (reservation) => {
           placeId,
           checkIn,
           checkOut,
-          name,
+          email,
+          status,
+          uuid,
         },
       },
     },
