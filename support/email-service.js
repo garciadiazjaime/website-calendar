@@ -32,19 +32,19 @@ module.exports.sendReservationEmail = (reservation) => {
   }
 
   const html = `
-        <div>
-            <h1>Reservation confirmed!<h1>
-            <p>
-                Check-in: ${reservation.checkIn} 3:00 PM
-            </p>
-            <p>
-                Check-out: ${reservation.checkOut} 11:00 AM
-            </p>
-            <p>
-                <b>Lúptico</b>
-            </p>
-        </div>
-    `;
+    <div>
+      <h1>Reservation confirmed!</h1>
+      <p>
+        Check-in: <b>${reservation.checkIn}</b> 3:00 PM
+      </p>
+      <p>
+        Check-out: <b>${reservation.checkOut}</b> 11:00 AM
+      </p>
+      <p>
+        <small>Team Lúptico</small>
+      </p>
+    </div>
+  `;
 
   return sendEmail({
     text: html,

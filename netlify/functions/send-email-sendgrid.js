@@ -61,7 +61,7 @@ exports.handler = async function (event, _context) {
     subject,
     from,
     to,
-    cc: "info@mintitmedia.com",
+    bcc: "info@mintitmedia.com",
   };
 
   try {

@@ -26,7 +26,7 @@ describe("send-email-sendgrid", () => {
 
       expect(response).toEqual({ statusCode: 200, body: '{"status":"SEND"}' });
       expect(sendMock).toHaveBeenCalledWith({
-        cc: "info@mintitmedia.com",
+        bcc: "info@mintitmedia.com",
         from: "from@domain.com",
         html: "html",
         subject: "subject",

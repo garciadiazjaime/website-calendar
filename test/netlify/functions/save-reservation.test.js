@@ -190,9 +190,7 @@ describe("save-reservation", () => {
         .mockImplementation(() => Promise.resolve());
       const mockSendReservationEmail = jest
         .spyOn(emailService, "sendReservationEmail")
-        .mockImplementation(() =>
-          Promise.resolve("send_reservation_email_response")
-        );
+        .mockImplementation(() => {});
 
       mockSaveReservation.mockClear();
       mockSaveOccupancy.mockClear();
@@ -215,7 +213,7 @@ describe("save-reservation", () => {
       expect(response).toEqual({
         statusCode: 201,
         headers: { "Content-Type": "application/json" },
-        body: '{"status":"SUCCESS","email":"send_reservation_email_response"}',
+        body: '{"status":"SUCCESS"}',
       });
       expect(mockSaveReservation).toHaveBeenCalledWith({
         checkIn: "2022-11-03",
