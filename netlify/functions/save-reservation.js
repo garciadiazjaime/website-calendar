@@ -99,7 +99,7 @@ exports.handler = async function (event, _context) {
     };
   }
 
-  emailService.sendReservationEmail(reservation)
+  await emailService.sendReservationEmail(reservation)
 
   return {
     statusCode: 201,
