@@ -12,7 +12,7 @@ function getOccupancy(reservation) {
   while (checkIn < checkOut) {
     occupancy.push({
       placeId: reservation.placeId,
-      date: checkIn.toJSON().split("T")[0],
+      checkIn: checkIn.toJSON().split("T")[0],
       reservation: reservation.uuid,
     });
     checkIn.setDate(checkIn.getDate() + 1);

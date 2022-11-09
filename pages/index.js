@@ -34,9 +34,9 @@ const places = [
 async function getErrorMessage(response) {
   const { status, message } = await response.json();
   if (status === REQUEST_STATUS.INVALID_DATES) {
-    const invalidDates = message.map(({ date }) => ({
+    const invalidDates = message.map(({ checkIn }) => ({
       status: FORM_STATUS.ERROR,
-      message: `${date} is not available`,
+      message: `${checkIn} is not available`,
     }));
     return invalidDates;
   }

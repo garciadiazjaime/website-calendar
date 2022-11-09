@@ -11,7 +11,7 @@ const documentClient = new AWS.DynamoDB.DocumentClient();
 module.exports.getCabinAvailability = (occupancy) => {
   const items = occupancy.map((item) => ({
     placeId: item.placeId,
-    date: item.date,
+    checkIn: item.checkIn,
   }));
 
   const params = {
@@ -26,11 +26,11 @@ module.exports.getCabinAvailability = (occupancy) => {
 };
 
 module.exports.saveOccupancy = (occupancy) => {
-  const batch = occupancy.map(({ placeId, date, reservation }) => ({
+  const batch = occupancy.map(({ placeId, checkIn, reservation }) => ({
     PutRequest: {
       Item: {
         placeId,
-        date,
+        checkIn,
         reservation,
       },
     },

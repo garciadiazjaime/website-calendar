@@ -201,7 +201,7 @@ describe("save-reservation", () => {
 
       const event = {
         body: JSON.stringify({
-          placeId: 1,
+          placeId: "place-uuid",
           checkIn: today.toJSON().split("T")[0],
           checkOut: tomorrow.toJSON().split("T")[0],
           email: "test@domain.com",
@@ -219,19 +219,19 @@ describe("save-reservation", () => {
         checkIn: "2022-11-03",
         checkOut: "2022-11-05",
         email: "test@domain.com",
-        placeId: "1",
+        placeId: "place-uuid",
         status: "REQUESTED",
         uuid: "reservation-random-uuid",
       });
       expect(mockSaveOccupancy).toHaveBeenCalledWith([
         {
-          date: "2022-11-03",
-          placeId: "1",
+          checkIn: "2022-11-03",
+          placeId: "place-uuid",
           reservation: "reservation-random-uuid",
         },
         {
-          date: "2022-11-04",
-          placeId: "1",
+          checkIn: "2022-11-04",
+          placeId: "place-uuid",
           reservation: "reservation-random-uuid",
         },
       ]);
@@ -239,7 +239,7 @@ describe("save-reservation", () => {
         checkIn: "2022-11-03",
         checkOut: "2022-11-05",
         email: "test@domain.com",
-        placeId: "1",
+        placeId: "place-uuid",
         status: "REQUESTED",
         uuid: "reservation-random-uuid",
       });
