@@ -17,13 +17,14 @@ module.exports.RESERVATION_STATUS = {
 
 module.exports.saveReservation = (payload) => {
   const url = ".netlify/functions/save-reservation";
-  const { place: placeId, checkIn, checkOut, email } = payload;
+  const { placeId, hotelId, checkIn, checkOut, email } = payload;
 
   const reservation = {
     placeId,
     checkIn,
     checkOut,
     email,
+    hotelId,
   };
 
   return fetch(url, {

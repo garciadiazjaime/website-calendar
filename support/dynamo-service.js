@@ -46,18 +46,21 @@ module.exports.saveOccupancy = (occupancy) => {
 };
 
 module.exports.saveReservation = (reservation) => {
-  const { placeId, checkIn, checkOut, email, status, uuid } = reservation;
+  const { placeId, hotelId, checkIn, checkOut, email, status, uuid } = reservation;
 
   const batch = [
     {
       PutRequest: {
         Item: {
           placeId,
+          hotelId,
           checkIn,
           checkOut,
           email,
           status,
           uuid,
+          created: new Date().toJSON(),
+          updated: new Date().toJSON(),
         },
       },
     },

@@ -15,6 +15,7 @@ const FORM_STATUS = {
   SUCCESS: "SUCCESS",
 };
 
+const hotelId = "0b6d85c7-5826-4b33-8158-2432f9ae86c6"
 const places = [
   {
     id: "167e753d-9d6a-43bd-930f-8ae1db3a35c3",
@@ -86,7 +87,8 @@ export default function Home() {
     setLoading(true);
 
     const payload = {
-      place: placeId,
+      placeId,
+      hotelId,
       checkIn: checkIn.toJSON().split("T")[0],
       checkOut: checkOut.toJSON().split("T")[0],
       email: emailInputRef.current.value,
