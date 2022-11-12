@@ -8,6 +8,19 @@ AWS.config.update({
 
 const documentClient = new AWS.DynamoDB.DocumentClient();
 
+module.exports.getCalendar = () => {
+  const params = {
+    ExpressionAttributeValues: {
+      ':checkIn': "202",
+    },
+    FilterExpression: 'contains (checkIn, :checkIn)',
+    TableName: "occupancy",
+  };
+
+  return documentClient.scan(params).promise();
+};
+
+
 module.exports.getCabinAvailability = (occupancy) => {
   const items = occupancy.map((item) => ({
     placeId: item.placeId,
