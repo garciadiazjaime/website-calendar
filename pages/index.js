@@ -126,6 +126,7 @@ export default function Home() {
         setMessages([]);
       }, 1000 * 6);
       cleanForm();
+      fetchCalendar()
     }
 
     setLoading(false);
@@ -152,18 +153,18 @@ export default function Home() {
     return takenDatesByDayAndPlaceId[key];
   }
 
-  useEffect(() => {
-    async function fetchCalendar() {
-      const response = await fetch(
-        "https://f004.backblazeb2.com/file/mint-assets/calendar.json"
-      );
-      const data = await response.json();
+  async function fetchCalendar() {
+    const response = await fetch(
+      "https://f004.backblazeb2.com/file/mint-assets/calendar.json"
+    );
+    const data = await response.json();
 
-      if (Array.isArray(data)) {
-        setTakenDates(data);
-      }
+    if (Array.isArray(data)) {
+      setTakenDates(data);
     }
+  }
 
+  useEffect(() => {
     fetchCalendar();
   }, []);
 
