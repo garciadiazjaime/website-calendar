@@ -85,18 +85,25 @@ module.exports.getOccupancy = (reservation) => {
   return occupancy;
 };
 
+const getKey = (item) => `${item.checkIn}-${item.placeId}`;
+module.exports.getKey = getKey
+
+const getTakenDatesByDayAndPlaceId = (takenDates) => {
+  return takenDates.reduce((accu, item) => {
+    accu[getKey(item)] = true;
+
+    return accu;
+  }, {});
+};
+
+module.exports.getTakenDatesByDayAndPlaceId = getTakenDatesByDayAndPlaceId;
+
 module.exports.getInvalidDates = (occupancy, takenDates) => {
   if (!Array.isArray(occupancy) || !Array.isArray(takenDates)) {
     return [];
   }
 
-  const getKey = (item) => `${item.checkIn}-${item.placeId}`;
-
-  const takenDatesByDayAndPlayceId = takenDates.reduce((accu, item) => {
-    accu[getKey(item)] = true;
-
-    return accu;
-  }, {});
+  const takenDatesByDayAndPlayceId = getTakenDatesByDayAndPlaceId(takenDates);
 
   const invalidDates = occupancy.reduce((accu, item) => {
     if (takenDatesByDayAndPlayceId[getKey(item)]) {

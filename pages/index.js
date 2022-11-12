@@ -9,6 +9,8 @@ import {
   getReservationErrors,
   getOccupancy,
   getInvalidDates,
+  getTakenDatesByDayAndPlaceId,
+  getKey,
   REQUEST_STATUS,
 } from "../support/reservation-service";
 
@@ -129,9 +131,32 @@ export default function Home() {
     setLoading(false);
   };
 
+  function isDateDisabled(date) {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (date < yesterday) {
+      return true;
+    }
+
+    if (!placeId || !Array.isArray(takenDates) || !takenDates.length) {
+      return false;
+    }
+
+    const takenDatesByDayAndPlaceId = getTakenDatesByDayAndPlaceId(takenDates);
+    const checkIn = date.toJSON().split("T")[0];
+    const key = getKey({
+      checkIn,
+      placeId,
+    });
+
+    return takenDatesByDayAndPlaceId[key];
+  }
+
   useEffect(() => {
     async function fetchCalendar() {
-      const response = await fetch('https://f004.backblazeb2.com/file/mint-assets/calendar.json')
+      const response = await fetch(
+        "https://f004.backblazeb2.com/file/mint-assets/calendar.json"
+      );
       const data = await response.json();
 
       if (Array.isArray(data)) {
@@ -168,17 +193,16 @@ export default function Home() {
             Check-in: <br />
             <Calendar
               className="calendar"
-              onChange={setCheckIn}
-              value={checkIn}
-            />
-          </div>
-          <br />
-          <div>
-            Check-out: <br />
-            <Calendar
-              className="calendar"
-              onChange={setCheckOut}
-              value={checkOut}
+              onChange={(dates) => {
+                console.log(dates);
+                setCheckIn(dates[0]);
+                setCheckOut(dates[1]);
+              }}
+              value={[checkIn, checkOut]}
+              selectRange={true}
+              tileDisabled={({ activeStartDate, date, view }) =>
+                isDateDisabled(date)
+              }
             />
           </div>
         </div>
