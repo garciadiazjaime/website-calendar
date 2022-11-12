@@ -1,4 +1,4 @@
-const { isEmailValid } = require('./validation')
+const { isEmailValid } = require("./validation");
 
 module.exports.REQUEST_STATUS = {
   EMPTY_BODY: "EMPTY_BODY",
@@ -66,4 +66,45 @@ module.exports.getReservationErrors = (props) => {
   }
 
   return errors;
+};
+
+module.exports.getOccupancy = (reservation) => {
+  const checkIn = new Date(reservation.checkIn);
+  const checkOut = new Date(reservation.checkOut);
+  const occupancy = [];
+
+  while (checkIn < checkOut) {
+    occupancy.push({
+      placeId: reservation.placeId,
+      checkIn: checkIn.toJSON().split("T")[0],
+      reservation: reservation.uuid,
+    });
+    checkIn.setDate(checkIn.getDate() + 1);
+  }
+
+  return occupancy;
+};
+
+module.exports.getInvalidDates = (occupancy, takenDates) => {
+  if (!Array.isArray(occupancy) || !Array.isArray(takenDates)) {
+    return [];
+  }
+
+  const getKey = (item) => `${item.checkIn}-${item.placeId}`;
+
+  const takenDatesByDayAndPlayceId = takenDates.reduce((accu, item) => {
+    accu[getKey(item)] = true;
+
+    return accu;
+  }, {});
+
+  const invalidDates = occupancy.reduce((accu, item) => {
+    if (takenDatesByDayAndPlayceId[getKey(item)]) {
+      accu.push(item);
+    }
+
+    return accu;
+  }, []);
+
+  return invalidDates;
 };

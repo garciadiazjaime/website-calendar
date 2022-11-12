@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Head from "next/head";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -7,6 +7,8 @@ import Loading from "../components/loading";
 import {
   saveReservation,
   getReservationErrors,
+  getOccupancy,
+  getInvalidDates,
   REQUEST_STATUS,
 } from "../support/reservation-service";
 
@@ -15,7 +17,7 @@ const FORM_STATUS = {
   SUCCESS: "SUCCESS",
 };
 
-const hotelId = "0b6d85c7-5826-4b33-8158-2432f9ae86c6"
+const hotelId = "0b6d85c7-5826-4b33-8158-2432f9ae86c6";
 const places = [
   {
     id: "167e753d-9d6a-43bd-930f-8ae1db3a35c3",
@@ -55,6 +57,7 @@ export default function Home() {
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [takenDates, setTakenDates] = useState([]);
   const emailInputRef = useRef(null);
 
   const cleanForm = () => {
@@ -83,9 +86,6 @@ export default function Home() {
       return;
     }
 
-    setMessages([]);
-    setLoading(true);
-
     const payload = {
       placeId,
       hotelId,
@@ -94,6 +94,20 @@ export default function Home() {
       email: emailInputRef.current.value,
     };
 
+    const occupancy = getOccupancy(payload);
+    const invalidDates = getInvalidDates(occupancy, takenDates);
+
+    if (invalidDates.length) {
+      setMessages(
+        invalidDates.map((item) => ({
+          status: FORM_STATUS.ERROR,
+          message: `${item.checkIn} is not available`,
+        }))
+      );
+      return;
+    }
+
+    setLoading(true);
     const response = await saveReservation(payload);
     if (response.status !== 201) {
       const errorMessage = await getErrorMessage(response);
@@ -115,10 +129,23 @@ export default function Home() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    async function fetchCalendar() {
+      const response = await fetch('https://f004.backblazeb2.com/file/mint-assets/calendar.json')
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setTakenDates(data);
+      }
+    }
+
+    fetchCalendar();
+  }, []);
+
   return (
     <div className="container">
       <Head>
-        <title>Create Next App</title>
+        <title>Lúptico Calendar</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

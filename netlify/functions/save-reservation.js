@@ -1,32 +1,20 @@
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require("uuid");
 
-const { getReservationErrors, REQUEST_STATUS, RESERVATION_STATUS } = require("../../support/reservation-service");
+const {
+  getReservationErrors,
+  getOccupancy,
+  REQUEST_STATUS,
+  RESERVATION_STATUS,
+} = require("../../support/reservation-service");
 const dynamoService = require("../../support/dynamo-service");
-const emailService = require('../../support/email-service')
-
-function getOccupancy(reservation) {
-  const checkIn = new Date(reservation.checkIn);
-  const checkOut = new Date(reservation.checkOut);
-  const occupancy = [];
-
-  while (checkIn < checkOut) {
-    occupancy.push({
-      placeId: reservation.placeId,
-      checkIn: checkIn.toJSON().split("T")[0],
-      reservation: reservation.uuid,
-    });
-    checkIn.setDate(checkIn.getDate() + 1);
-  }
-
-  return occupancy;
-}
+const emailService = require("../../support/email-service");
 
 exports.handler = async function (event, _context) {
   if (!event.body) {
     return {
       statusCode: 400,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         status: REQUEST_STATUS.EMPTY_BODY,
@@ -41,7 +29,7 @@ exports.handler = async function (event, _context) {
     return {
       statusCode: 400,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         status: REQUEST_STATUS.INVALID_FORMAT,
@@ -55,7 +43,7 @@ exports.handler = async function (event, _context) {
     return {
       statusCode: 400,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         status: REQUEST_STATUS.INVALID_DATA,
@@ -64,7 +52,7 @@ exports.handler = async function (event, _context) {
     };
   }
 
-  reservation.uuid = uuidv4()
+  reservation.uuid = uuidv4();
   reservation.status = RESERVATION_STATUS.REQUESTED;
   const occupancy = getOccupancy(reservation);
 
@@ -73,7 +61,7 @@ exports.handler = async function (event, _context) {
     return {
       statusCode: 400,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         status: REQUEST_STATUS.INVALID_DATES,
@@ -89,7 +77,7 @@ exports.handler = async function (event, _context) {
     return {
       statusCode: 400,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         status: REQUEST_STATUS.DB_ERROR,
@@ -98,12 +86,12 @@ exports.handler = async function (event, _context) {
     };
   }
 
-  await emailService.sendReservationEmail(reservation)
+  await emailService.sendReservationEmail(reservation);
 
   return {
     statusCode: 201,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       status: REQUEST_STATUS.SUCCESS,
