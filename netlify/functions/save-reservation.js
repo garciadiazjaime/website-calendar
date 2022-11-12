@@ -8,6 +8,7 @@ const {
 } = require("../../support/reservation-service");
 const dynamoService = require("../../support/dynamo-service");
 const emailService = require("../../support/email-service");
+const backblazebService = require("../../support/backblaze-service");
 
 exports.handler = async function (event, _context) {
   if (!event.body) {
@@ -86,7 +87,10 @@ exports.handler = async function (event, _context) {
     };
   }
 
-  await emailService.sendReservationEmail(reservation);
+  await Promise.all([
+    emailService.sendReservationEmail(reservation),
+    backblazebService.generateCalendar(),
+  ]);
 
   return {
     statusCode: 201,

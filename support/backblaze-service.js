@@ -1,8 +1,7 @@
 const base64 = require("base-64");
 const fetch = require("node-fetch");
 const sha1 = require("sha1");
-require('dotenv').config()
-
+require("dotenv").config();
 
 async function getToken() {
   const keyID = process.env.BACKBLAZEB2_KEY_ID;
@@ -50,9 +49,9 @@ async function getUploadURL() {
   };
 }
 
-module.exports.uploadCalendar = (calendar) => {
-  const authorizationToken = process.env.BACKBLAZEB2_TOKEN;
-  const uploadUrl = process.env.BACKBLAZEB2_URL;
+module.exports.uploadCalendar = async (calendar) => {
+  const { authorizationToken, uploadUrl } = await getUploadURL();
+
   const fileData = JSON.stringify(calendar);
   const sha1FileData = sha1(fileData);
 
@@ -70,8 +69,20 @@ module.exports.uploadCalendar = (calendar) => {
   });
 };
 
+module.exports.generateCalendar = () => {
+  const LAMBDA_BASE_URL = process.env.LAMBDA_BASE_URL;
+  const url = `${LAMBDA_BASE_URL}/.netlify/functions/generate-calendar`;
+
+  return fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+};
+
 if (require.main === module) {
-  getUploadURL().then(data => {
-    console.log(JSON.stringify(data, null, 2))
-  })
-} 
+  getUploadURL().then((data) => {
+    console.log(JSON.stringify(data, null, 2));
+  });
+}
